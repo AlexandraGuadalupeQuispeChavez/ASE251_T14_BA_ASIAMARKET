@@ -25,30 +25,60 @@
     "/analytics/sales-total": {
       "get": {
         "summary": "Obtener ventas totales",
-        "description": "Calcula el monto total vendido utilizando información empresarial almacenada en las fuentes de datos configuradas.",
+        "description": "Calcula las ventas totales. Permite filtrar por año y mes. Si solo se envía el mes, consulta ese mes de todos los años.",
         "tags": [
-          "Indicadores Analíticos"
+          "Indicadores SQL Server"
+        ],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "description": "Año de las ventas. El Backend valida que sea un número entero válido.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "description": "Mes de las ventas. El Backend valida que esté entre 1 y 12.",
+            "required": false,
+            "type": "integer"
+          }
         ],
         "responses": {
           "200": {
-            "description": "Cálculo realizado correctamente",
+            "description": "Ventas totales calculadas correctamente",
             "schema": {
               "type": "object",
               "properties": {
-                "indicator_name": {
+                "indicator": {
                   "type": "string",
-                  "example": "Total Sales"
+                  "example": "sales_total"
                 },
-                "total_sales": {
+                "title": {
+                  "type": "string",
+                  "example": "Ventas Totales"
+                },
+                "chart_type": {
+                  "type": "string",
+                  "example": "card"
+                },
+                "data": {
                   "type": "number",
                   "example": 2855530
                 },
-                "currency": {
-                  "type": "string",
-                  "example": "PEN"
+                "sources": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "example": ["SQL Server"]
                 }
               }
             }
+          },
+          "400": {
+            "description": "Parámetros inválidos"
           },
           "500": {
             "description": "Error interno del servidor"

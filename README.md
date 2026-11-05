@@ -1,13 +1,42 @@
 # Backend Analítico - AsiaMarket
 
-Backend analítico desarrollado con Flask y MongoDB para el análisis de datos de ventas de AsiaMarket.
+Backend analítico desarrollado con Flask, MongoDB y SQL Server para el análisis de datos de ventas de AsiaMarket.
+
+## ✅ Implementación de Filtros Dinámicos Completada
+
+**Endpoint actualizado:** `GET /analytics/sales-total`
+
+### Parámetros opcionales:
+- `year` (int): Filtra ventas por año (1-9999)
+- `month` (int): Filtra ventas por mes (1-12)
+
+### Ejemplos de uso:
+```
+/analytics/sales-total                    → Total histórico
+/analytics/sales-total?year=2026          → Total del año 2026
+/analytics/sales-total?month=10           → Total de octubre (todos los años)
+/analytics/sales-total?year=2026&month=10 → Total de octubre 2026
+```
+
+### Formato de respuesta:
+```json
+{
+  "indicator": "sales_total",
+  "title": "Ventas Totales",
+  "chart_type": "card",
+  "data": 2855530.0,
+  "sources": ["SQL Server"]
+}
+```
 
 ## 📋 Tecnologías
 
 - **Python 3.12+**
 - **Flask** - Framework web
 - **MongoDB Atlas** - Base de datos NoSQL
+- **SQL Server** - Base de datos relacional
 - **PyMongo** - Driver de MongoDB para Python
+- **pyodbc** - Driver de SQL Server para Python
 - **Flask-CORS** - Manejo de CORS
 - **Python-dotenv** - Gestión de variables de entorno
 
@@ -96,14 +125,50 @@ Cuando el entorno esté activo verás:
 ### 3. Instalar dependencias
 
 ```bash
-pip install flask flask-cors pymongo pyodbc python-dotenv flask-swagger-ui
+pip install -r requirements.txt
 ```
 
-### 4. Generar archivo de dependencias
+### 4. Configurar variables de entorno
+
+Crea un archivo `.env` en la raíz del proyecto:
+
+```env
+# SQL Server (REQUERIDO para filtros dinámicos)
+SQL_SERVER=tu-servidor.database.windows.net
+SQL_DATABASE=tu-base-de-datos
+SQL_USERNAME=tu-usuario
+SQL_PASSWORD=tu-password
+SQL_DRIVER={ODBC Driver 17 for SQL Server}
+
+# MongoDB (opcional)
+MONGO_URI=mongodb+srv://usuario:password@cluster.mongodb.net/?appName=cluster-asiamarket
+MONGO_DATABASE=asiamarket_analytics
+```
+
+### 5. Ejecutar el proyecto
 
 ```bash
-pip freeze > requirements.txt
+python -m app.main
 ```
+
+El servidor estará disponible en: `http://127.0.0.1:5000/`
+
+### 6. Probar con Swagger UI
+
+Abre: `http://127.0.0.1:5000/docs/`
+
+## 🧪 Pruebas del Endpoint
+
+### Casos exitosos (HTTP 200):
+1. Sin filtros: `/analytics/sales-total`
+2. Por año: `/analytics/sales-total?year=2026`
+3. Por mes: `/analytics/sales-total?month=10`
+4. Año y mes: `/analytics/sales-total?year=2026&month=10`
+
+### Casos de validación (HTTP 400):
+5. Mes inválido: `/analytics/sales-total?month=15`
+6. Año inválido: `/analytics/sales-total?year=abc`
+7. Ambos inválidos: `/analytics/sales-total?year=abc&month=15`
 
 ### 5. Configurar MongoDB Atlas
 
@@ -162,11 +227,31 @@ MONGO_DATABASE=asiamarket_analytics
 
 ## ▶️ Ejecutar el Proyecto
 
-Con el entorno virtual activado:
+### Inicio Rápido (3 pasos):
 
 ```bash
+# 1. Levantar SQL Server
+docker-compose up -d
+
+# 2. Esperar 30 segundos y configurar BD (ver INICIO_RAPIDO.md)
+
+# 3. Ejecutar backend
 python -m app.main
 ```
+
+**Ver instrucciones completas en:** `INICIO_RAPIDO.md`
+
+### Credenciales configuradas:
+
+**SQL Server (Docker local):**
+- Host: `localhost,1433`
+- Database: `asiamarket_analytics`
+- User: `sa`
+- Password: `AsiaMarket2024!`
+
+**MongoDB Atlas:**
+- User: `alexandraquispe_db_user`
+- Password: `q3GmLi9MvuDfcRGo`
 
 El servidor se iniciará en: `http://127.0.0.1:5000/`
 

@@ -1,7 +1,9 @@
 """
 Servicio analítico para cálculo de indicadores de ventas
 """
-from app.repositories.mongodb.sales_repository import SalesRepository
+from app.repositories.sqlserver.sales_repository import SQLServerSalesRepository
+from app.schemas.sales_schema import IndicatorResponse
+
 
 class AnalyticsService:
     """
@@ -10,28 +12,28 @@ class AnalyticsService:
     """
     
     def __init__(self):
-        self.repository = SalesRepository()
+        self.repository = SQLServerSalesRepository()
     
-    def calculate_total_sales(self):
+    def total_sales(self, year=None, month=None):
         """
-        Calcula el monto total de todas las ventas
+        Calcula el monto total de ventas con filtros opcionales
         
-        Transforma: Datos de MongoDB → Indicador empresarial
+        Args:
+            year (int, optional): Año para filtrar las ventas
+            month (int, optional): Mes para filtrar las ventas
         
         Returns:
-            dict: Indicador con el monto total de ventas
+            IndicatorResponse: Objeto con el indicador de ventas totales
         """
-        # Obtener todas las ventas desde MongoDB
-        sales = self.repository.get_all_sales()
+        result = self.repository.get_total_sales(
+            year=year,
+            month=month
+        )
         
-        # Calcular el total sumando el campo total_amount
-        total = 0
-        for sale in sales:
-            total += sale["total_amount"]
-        
-        # Retornar el indicador empresarial
-        return {
-            "indicator_name": "Total Sales",
-            "total_sales": total,
-            "currency": "PEN"
-        }
+        return IndicatorResponse(
+            indicator="sales_total",
+            title="Ventas Totales",
+            chart_type="card",
+            data=result,
+            sources=["SQL Server"]
+        )
